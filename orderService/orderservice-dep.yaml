@@ -1,0 +1,47 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orderservice
+  labels:
+    app: orderservice
+spec:
+  #type: NodePort
+  #clusterIP: None
+  ports:
+    - port: 3000
+      protocol: TCP
+      targetPort: 3000
+  selector:
+    app: orderservice
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orderservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orderservice
+  template:
+    metadata:
+      labels:
+        app: orderservice
+    spec:
+      containers:
+      - name: orderservice
+        imagePullPolicy: Always
+        image: dckreg:5000/orderservice:1.1
+        env:
+        - name: redisHost
+          value: 10.0.15.10
+        - name: PORT
+          value: "3000"
+        ports:
+        - containerPort: 3000
+        command:
+        - sh
+        - -c
+        - npm start

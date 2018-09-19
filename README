@@ -1,0 +1,10 @@
+sudo docker pull redis:5.0-rc3
+
+sudo docker run --name some-redis  -p 6379:6379 -d --restart  redis:5.0-rc3  redis-server --appendonly yes
+
+sudo docker exec -ti some-redis bash -c redis-cli
+
+
+curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+sudo apt-get install -y nodejs
+

@@ -1,0 +1,63 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodeapp-microservice
+  labels:
+    app: nodeapp-microservice
+spec:
+  #type: NodePort
+  #clusterIP: None
+  ports:
+    - port: 3000
+      protocol: TCP
+      targetPort: 3000
+  selector:
+    app: nodeapp-microservice
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodeapp-microservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nodeapp-microservice
+  template:
+    metadata:
+      labels:
+        app: nodeapp-microservice
+    spec:
+      containers:
+      - name: nodeapp-microservice
+        imagePullPolicy: Always
+        image: dckreg:5000/microservice:1.1
+        env:
+        - name: redisHost
+          value: 10.0.15.10
+        - name: orderService
+          value: http://orderservice:3000
+        - name: productService
+          value: http://productservice:3000
+        ports:
+        - containerPort: 3000
+        command:
+        - sh
+        - -c
+        - npm start
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: nodeapp-microservice
+  namespace: default
+spec:
+  rules:
+  - host: microservice.k8t.io
+    http:
+      paths:
+      - backend:
+          serviceName: nodeapp-microservice
+          servicePort: 3000
